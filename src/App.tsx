@@ -1,14 +1,47 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from './app/store';
+import useTokenRefresh from './features/auth/useTokenRefresh'; // Import the token refresh hook
+import Login from './features/auth/Login'; // Import the Login component
+import LogoutButton from './features/auth/LogoutButton'; // Import the Logout button
 import './App.css';
+import { Counter } from './features/counter/Counter';
 
 function App() {
+  useTokenRefresh(); // Call the token refresh hook
+  const user = useSelector((state: RootState) => state.auth.user); // Access the user from Redux state
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
+      <Router>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <header className="App-header">
+          {user ? (
+            <>
+              <h1>Welcome, {user.username}!</h1>
+              <LogoutButton />
+            </>
+          ) : (
+            <Login />
+          )}
+        </header>
+
+        <Routes>
+          <Route path="/" element={<Counter />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+        
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
@@ -50,7 +83,7 @@ function App() {
             React Redux
           </a>
         </span>
-      </header>
+      </Router>
     </div>
   );
 }
